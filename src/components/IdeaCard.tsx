@@ -1,5 +1,5 @@
 import type { Idea } from '../types/idea';
-import { StatusBadge, PriorityBadge, ProgressBar } from './Badges';
+import { PriorityBadge, ProgressBar } from './Badges';
 import { Github, ExternalLink } from 'lucide-react';
 import { CARD_MAX_TAGS } from '../lib/constants';
 

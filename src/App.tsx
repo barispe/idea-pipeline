@@ -14,7 +14,7 @@ import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useTheme } from './hooks/useTheme';
 
 export default function App() {
-    const { loadIdeas, loading, view, createIdea, selectedIdeaId, setSelectedIdea, setFilters } = useIdeasStore();
+    const { loadIdeas, loading, view, createIdea, selectedIdeaId, setSelectedIdea } = useIdeasStore();
     const { theme, toggleTheme } = useTheme();
     const [showForm, setShowForm] = useState(false);
     const [showShortcuts, setShowShortcuts] = useState(false);
@@ -67,7 +67,6 @@ export default function App() {
 
             <div className="main-area">
                 <Header
-                    onNewIdea={() => setShowForm(true)}
                     onShowShortcuts={() => setShowShortcuts(true)}
                     theme={theme}
                     onToggleTheme={toggleTheme}

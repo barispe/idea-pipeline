@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 import { useIdeasStore } from '../store/useIdeasStore';
-import { LayoutDashboard, Columns2, List, Clock, Search, AlignLeft, Download, Upload, X, Keyboard, Sun, Moon } from 'lucide-react';
+import { LayoutDashboard, Columns2, Clock, Search, AlignLeft, Download, Upload, X, Keyboard, Sun, Moon } from 'lucide-react';
 
 const VIEW_LABELS: Record<string, string> = {
     dashboard: '📊 Dashboard',
@@ -10,13 +10,12 @@ const VIEW_LABELS: Record<string, string> = {
 };
 
 interface HeaderProps {
-    onNewIdea: () => void;
     onShowShortcuts: () => void;
     theme: 'dark' | 'light';
     onToggleTheme: () => void;
 }
 
-export function Header({ onNewIdea, onShowShortcuts, theme, onToggleTheme }: HeaderProps) {
+export function Header({ onShowShortcuts, theme, onToggleTheme }: HeaderProps) {
     const { view, setView, filters, setFilters, exportIdeas, exportIdeasCsv, importIdeas, importError, clearImportError } = useIdeasStore();
     const importRef = useRef<HTMLInputElement>(null);
 

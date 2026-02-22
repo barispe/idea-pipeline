@@ -1,9 +1,5 @@
 import type { Idea } from '../types/idea';
 
-function makeId() {
-    return Math.random().toString(36).slice(2) + Date.now().toString(36);
-}
-
 function ago(days: number): string {
     const d = new Date();
     d.setDate(d.getDate() - days);

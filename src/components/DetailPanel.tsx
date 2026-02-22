@@ -3,7 +3,7 @@ import { format } from 'date-fns';
 import { marked } from 'marked';
 import {
     X, Github, ExternalLink, Check, Trash2, Plus,
-    ChevronDown, Clock, Calendar, Eye, Edit2, Copy, Download
+    Clock, Calendar, Eye, Edit2, Copy, Download
 } from 'lucide-react';
 import type { Idea, IdeaStatus } from '../types/idea';
 import { ALL_STATUSES, STATUS_CONFIG, PRIORITY_CONFIG } from '../types/idea';
