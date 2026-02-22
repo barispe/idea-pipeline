@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx tsc:*)",
+      "Bash(git -C:*)",
+      "Bash(git -C \"C:\\\\Users\\\\Barold\\\\idea_pipeline\" status)",
+      "Bash(git init:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git remote add:*)",
+      "Bash(git branch:*)",
+      "Bash(git push:*)",
+      "Bash(npm audit:*)",
+      "mcp__Desktop_Commander__read_file",
+      "Bash(\"C:\\\\Users\\\\Barold\\\\idea_pipeline\\\\src\\\\index.css\" << 'EOF'\n\n/* ─── Import Error Banner ─── */\n.import-error-banner {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  gap: 10px;\n  background: rgba\\(239, 68, 68, 0.12\\);\n  border-bottom: 1px solid rgba\\(239, 68, 68, 0.3\\);\n  color: #fca5a5;\n  font-size: 13px;\n  padding: 8px 16px;\n  animation: slideDown 0.2s ease;\n}\n\n.import-error-close {\n  background: transparent;\n  border: none;\n  color: #fca5a5;\n  cursor: pointer;\n  display: flex;\n  align-items: center;\n  padding: 2px;\n  border-radius: 4px;\n  flex-shrink: 0;\n}\n\n.import-error-close:hover {\n  color: #f87171;\n}\n\n@keyframes slideDown {\n  from { opacity: 0; transform: translateY\\(-6px\\); }\n  to   { opacity: 1; transform: translateY\\(0\\); }\n}\nEOF)"
+    ]
+  }
+}

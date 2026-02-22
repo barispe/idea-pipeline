@@ -24,8 +24,10 @@ interface IdeasStore {
     selectedIdeaId: string | null;
     view: 'board' | 'list' | 'timeline' | 'dashboard';
     loading: boolean;
-    savedAt: number | null;  // epoch ms, updated on every mutation → drives save toast
-    categories: string[];    // built-in + custom
+    savedAt: number | null;   // epoch ms, updated on every mutation → drives save toast
+    importError: string | null; // shown when JSON import fails
+    categories: string[];     // built-in + custom
+    clearImportError: () => void;
     // Actions
     loadIdeas: () => Promise<void>;
     createIdea: (idea: Omit<Idea, 'id' | 'createdAt' | 'updatedAt' | 'todos' | 'logs'>) => Promise<void>;
@@ -56,6 +58,7 @@ export const useIdeasStore = create<IdeasStore>((set, get) => ({
     view: 'board',
     loading: true,
     savedAt: null,
+    importError: null,
     categories: [...DEFAULT_CATEGORIES],
 
     loadIdeas: async () => {
@@ -209,7 +212,11 @@ export const useIdeasStore = create<IdeasStore>((set, get) => ({
 
     setSelectedIdea: (id) => set({ selectedIdeaId: id }),
 
-    setView: (view) => set({ view }),
+    // Reset non-search filters when switching views so dashboard/board show full data
+    setView: (view) => set((s) => ({
+        view,
+        filters: { ...s.filters, status: 'all', priority: 'all', tag: 'all', category: 'all' },
+    })),
 
     addCategory: async (name: string) => {
         const trimmed = name.trim();
@@ -244,10 +251,21 @@ export const useIdeasStore = create<IdeasStore>((set, get) => ({
         const text = await file.text();
         let imported: Idea[];
         try {
-            imported = JSON.parse(text);
-            if (!Array.isArray(imported)) throw new Error('Not an array');
-        } catch {
-            alert('Invalid JSON file. Please export from Idea Pipeline first.');
+            const parsed = JSON.parse(text);
+            if (!Array.isArray(parsed)) throw new Error('Root must be an array');
+            // Basic shape validation + clamp progress to 0-100
+            imported = parsed.map((item: unknown) => {
+                if (typeof item !== 'object' || item === null || !('id' in item) || !('title' in item)) {
+                    throw new Error('Each item must be an object with at least id and title');
+                }
+                const idea = item as Idea;
+                return {
+                    ...idea,
+                    progress: Math.min(100, Math.max(0, Number(idea.progress) || 0)),
+                };
+            });
+        } catch (err) {
+            set({ importError: `Import failed: ${err instanceof Error ? err.message : 'Invalid JSON file'}` });
             return;
         }
         // Merge: imported ideas win over existing ones with same id
@@ -259,8 +277,10 @@ export const useIdeasStore = create<IdeasStore>((set, get) => ({
             else merged.push(idea);
         }
         await Promise.all(merged.map((idea) => storage.save(idea)));
-        set({ ideas: merged, savedAt: Date.now() });
+        set({ ideas: merged, savedAt: Date.now(), importError: null });
     },
+
+    clearImportError: () => set({ importError: null }),
 }));
 
 export function useFilteredIdeas() {

@@ -1751,3 +1751,37 @@ input[type="range"]::-webkit-slider-thumb:hover {
 .cat-cancel-btn:hover {
   color: #f87171;
 }
+/* ─── Import Error Banner ─── */
+.import-error-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: rgba(239, 68, 68, 0.12);
+  border-bottom: 1px solid rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+  font-size: 13px;
+  padding: 8px 16px;
+  animation: slideDown 0.2s ease;
+}
+
+.import-error-close {
+  background: transparent;
+  border: none;
+  color: #fca5a5;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 2px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.import-error-close:hover {
+  color: #f87171;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

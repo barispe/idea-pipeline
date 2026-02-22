@@ -7,6 +7,7 @@ import {
 import type { Idea, IdeaStatus } from '../types/idea';
 import { ALL_STATUSES, STATUS_CONFIG, PRIORITY_CONFIG } from '../types/idea';
 import { useIdeasStore } from '../store/useIdeasStore';
+// categories pulled from store so custom categories appear here too
 import { StatusBadge, PriorityBadge, ProgressBar } from './Badges';
 
 const EMOJIS = ['💡', '🤖', '🔨', '🚀', '🎮', '📱', '🔬', '🧪', '🌱', '💰', '🔐', '🎯',
@@ -21,7 +22,7 @@ interface DetailPanelProps {
 }
 
 export function DetailPanel({ idea, onClose }: DetailPanelProps) {
-    const { updateIdea, deleteIdea, addTodo, toggleTodo, deleteTodo, addLog, changeStatus } = useIdeasStore();
+    const { updateIdea, deleteIdea, addTodo, toggleTodo, deleteTodo, addLog, changeStatus, categories } = useIdeasStore();
 
     const [tab, setTab] = useState<Tab>('overview');
     const [todoInput, setTodoInput] = useState('');
@@ -82,7 +83,6 @@ export function DetailPanel({ idea, onClose }: DetailPanelProps) {
                             rows={2}
                             value={idea.title}
                             onChange={(e) => update('title', e.target.value)}
-                            onBlur={() => updateIdea(idea.id, {})}
                         />
                         <div className="panel-header-badges">
                             <StatusBadge status={idea.status} small />
@@ -177,7 +177,7 @@ export function DetailPanel({ idea, onClose }: DetailPanelProps) {
                                     </select>
                                 </div>
 
-                                {/* Category */}
+                                {/* Category — uses store categories so custom ones appear */}
                                 <div className="field-group">
                                     <div className="field-label">Category</div>
                                     <select
@@ -185,9 +185,11 @@ export function DetailPanel({ idea, onClose }: DetailPanelProps) {
                                         value={idea.category}
                                         onChange={(e) => update('category', e.target.value)}
                                     >
-                                        <option value="project">Project / Tool</option>
-                                        <option value="app">Mobile App</option>
-                                        <option value="other">Other</option>
+                                        {categories.map((cat) => (
+                                            <option key={cat} value={cat}>
+                                                {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                                            </option>
+                                        ))}
                                     </select>
                                 </div>
                             </div>
