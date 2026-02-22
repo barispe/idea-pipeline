@@ -374,6 +374,49 @@ Contributions are welcome! This is a personal tool so PRs that add complexity wi
 
 ---
 
+## Security
+
+### Dependency Audit
+
+Last audited: **2025-07-14** · Tool: `npm audit`
+
+| Area | Status |
+|---|---|
+| **Runtime dependencies** (shipped to users) | ✅ **0 vulnerabilities** |
+| **Dev dependencies** (build/lint tools only) | ⚠️ 10 high — dev-only, not shipped |
+| **TypeScript compilation** | ✅ Clean — 0 errors |
+
+#### What the warnings mean
+
+Running `npm audit` reports **10 high-severity** findings, all rooted in a single issue: `minimatch < 10.2.1` (ReDoS via crafted glob patterns — [GHSA-3ppc-4f35-3m26](https://github.com/advisories/GHSA-3ppc-4f35-3m26)).
+
+**Every affected package is a dev/lint tool** — `eslint`, `typescript-eslint`, and their transitive deps. None of these packages are included in the production bundle (`dist/`). They run only on the developer's machine during linting. End users of the app are **not exposed** to these packages.
+
+The fix requires a semver-major bump of `eslint → 10.x` and `typescript-eslint → 8.36.x`, which involves breaking config changes. It is tracked as a future maintenance item and does not affect user-facing security.
+
+#### Production bundle contents
+
+The compiled output (`npm run build`) contains only these runtime packages:
+
+| Package | Version | Purpose |
+|---|---|---|
+| `react` + `react-dom` | 19.x | UI framework |
+| `zustand` | 5.x | State management |
+| `localforage` | 1.x | IndexedDB persistence |
+| `@dnd-kit/*` | 6.x | Drag and drop |
+| `lucide-react` | 0.x | Icons |
+| `date-fns` | 4.x | Date formatting |
+
+All production packages are **clean** (0 audit findings).
+
+#### Data & privacy
+
+- No data ever leaves your browser — there is no server, no API, no analytics
+- All storage is in your browser's **IndexedDB** under the key `idea-pipeline`
+- No cookies, no tracking, no third-party requests at runtime
+
+---
+
 ## License
 
 MIT — see [LICENSE](./LICENSE) for details.
