@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 import { useIdeasStore } from '../store/useIdeasStore';
-import { LayoutDashboard, Columns2, List, Clock, Search, AlignLeft, Download, Upload, X, Keyboard } from 'lucide-react';
+import { LayoutDashboard, Columns2, List, Clock, Search, AlignLeft, Download, Upload, X, Keyboard, Sun, Moon } from 'lucide-react';
 
 const VIEW_LABELS: Record<string, string> = {
     dashboard: '📊 Dashboard',
@@ -12,9 +12,11 @@ const VIEW_LABELS: Record<string, string> = {
 interface HeaderProps {
     onNewIdea: () => void;
     onShowShortcuts: () => void;
+    theme: 'dark' | 'light';
+    onToggleTheme: () => void;
 }
 
-export function Header({ onNewIdea, onShowShortcuts }: HeaderProps) {
+export function Header({ onNewIdea, onShowShortcuts, theme, onToggleTheme }: HeaderProps) {
     const { view, setView, filters, setFilters, exportIdeas, importIdeas, importError, clearImportError } = useIdeasStore();
     const importRef = useRef<HTMLInputElement>(null);
 
@@ -85,6 +87,16 @@ export function Header({ onNewIdea, onShowShortcuts }: HeaderProps) {
                         style={{ display: 'none' }}
                         onChange={handleImport}
                     />
+
+                    {/* Theme toggle */}
+                    <button
+                        className="btn btn-ghost header-icon-btn"
+                        title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+                        aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+                        onClick={onToggleTheme}
+                    >
+                        {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
+                    </button>
 
                     {/* Keyboard shortcuts help */}
                     <button
