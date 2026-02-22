@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useIdeasStore } from '../store/useIdeasStore';
 import { CheckCircle } from 'lucide-react';
+import { SAVE_TOAST_DURATION } from '../lib/constants';
 
 /**
  * Renders a brief "Saved" toast at the top-center of the viewport whenever
@@ -14,7 +15,7 @@ export function SaveToast() {
     useEffect(() => {
         if (!savedAt) return;
         setVisible(true);
-        const timer = setTimeout(() => setVisible(false), 1800);
+        const timer = setTimeout(() => setVisible(false), SAVE_TOAST_DURATION);
         return () => clearTimeout(timer);
     }, [savedAt]);
 

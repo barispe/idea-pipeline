@@ -3,10 +3,7 @@ import type { Idea, IdeaStatus, Priority, IdeaCategory } from '../types/idea';
 import { STATUS_CONFIG, ALL_STATUSES } from '../types/idea';
 import { useIdeasStore } from '../store/useIdeasStore';
 import { X } from 'lucide-react';
-
-const EMOJIS = ['💡', '🤖', '🔨', '🚀', '🎮', '📱', '🔬', '🧪', '🌱', '💰', '🔐', '🎯',
-    '🌐', '🗺️', '📋', '⚡', '🛡️', '🔄', '📝', '🎬', '🏠', '🔊', '🍞', '🏊', '🐾', '🎤',
-    '⚖️', '🌡️', '👴', '🗃️', '📡', '🔒', '📵', '🕸️', '👁️', '🏗️', '🔀', '🌉', '🔬', '💓'];
+import { EMOJIS } from '../lib/constants';
 
 interface IdeaFormProps {
     onClose: () => void;

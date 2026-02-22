@@ -21,14 +21,29 @@ export const storage = {
     },
 
     async save(idea: Idea): Promise<void> {
-        await store.setItem(idea.id, idea);
+        try {
+            await store.setItem(idea.id, idea);
+        } catch (err) {
+            console.error('[storage] Failed to save idea:', idea.id, err);
+            throw err; // re-throw so the store's action can surface it if needed
+        }
     },
 
     async delete(id: string): Promise<void> {
-        await store.removeItem(id);
+        try {
+            await store.removeItem(id);
+        } catch (err) {
+            console.error('[storage] Failed to delete idea:', id, err);
+            throw err;
+        }
     },
 
     async clear(): Promise<void> {
-        await store.clear();
+        try {
+            await store.clear();
+        } catch (err) {
+            console.error('[storage] Failed to clear store:', err);
+            throw err;
+        }
     },
 };

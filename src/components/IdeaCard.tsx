@@ -1,6 +1,7 @@
 import type { Idea } from '../types/idea';
 import { StatusBadge, PriorityBadge, ProgressBar } from './Badges';
 import { Github, ExternalLink } from 'lucide-react';
+import { CARD_MAX_TAGS } from '../lib/constants';
 
 interface IdeaCardProps {
     idea: Idea;
@@ -20,11 +21,11 @@ export function IdeaCard({ idea, onClick }: IdeaCardProps) {
 
             {idea.tags.length > 0 && (
                 <div className="card-tags">
-                    {idea.tags.slice(0, 3).map((tag) => (
+                    {idea.tags.slice(0, CARD_MAX_TAGS).map((tag) => (
                         <span key={tag} className="tag-chip">{tag}</span>
                     ))}
-                    {idea.tags.length > 3 && (
-                        <span className="tag-chip">+{idea.tags.length - 3}</span>
+                    {idea.tags.length > CARD_MAX_TAGS && (
+                        <span className="tag-chip">+{idea.tags.length - CARD_MAX_TAGS}</span>
                     )}
                 </div>
             )}

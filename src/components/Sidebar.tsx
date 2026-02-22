@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useIdeasStore, DEFAULT_CATEGORIES } from '../store/useIdeasStore';
 import { ALL_STATUSES, STATUS_CONFIG } from '../types/idea';
 import { LayoutDashboard, List, Columns2, Clock, Plus, Flame, Star, X, Check } from 'lucide-react';
+import { SIDEBAR_MAX_TAGS } from '../lib/constants';
 
 interface SidebarProps {
     onNewIdea: () => void;
@@ -23,7 +24,10 @@ export function Sidebar({ onNewIdea }: SidebarProps) {
     const [addingCat, setAddingCat] = useState(false);
     const [newCatName, setNewCatName] = useState('');
 
-    const allTags = Array.from(new Set(ideas.flatMap((i) => i.tags))).sort();
+    const allTags = useMemo(
+        () => Array.from(new Set(ideas.flatMap((i) => i.tags))).sort(),
+        [ideas]
+    );
 
     const hasActiveFilters =
         filters.status !== 'all' ||
@@ -237,7 +241,7 @@ export function Sidebar({ onNewIdea }: SidebarProps) {
             {allTags.length > 0 && (
                 <div className="sidebar-section">
                     <div className="sidebar-section-label">Tags</div>
-                    {allTags.slice(0, 15).map((tag) => {
+                    {allTags.slice(0, SIDEBAR_MAX_TAGS).map((tag) => {
                         const count = ideas.filter((i) => i.tags.includes(tag)).length;
                         return (
                             <div

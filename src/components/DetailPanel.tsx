@@ -7,12 +7,9 @@ import {
 import type { Idea, IdeaStatus } from '../types/idea';
 import { ALL_STATUSES, STATUS_CONFIG, PRIORITY_CONFIG } from '../types/idea';
 import { useIdeasStore } from '../store/useIdeasStore';
+import { EMOJIS } from '../lib/constants';
 // categories pulled from store so custom categories appear here too
 import { StatusBadge, PriorityBadge, ProgressBar } from './Badges';
-
-const EMOJIS = ['💡', '🤖', '🔨', '🚀', '🎮', '📱', '🔬', '🧪', '🌱', '💰', '🔐', '🎯',
-    '🌐', '🗺️', '📋', '⚡', '🛡️', '🔄', '📝', '🎬', '🏠', '🔊', '🍞', '🏊', '🐾', '🎤',
-    '⚖️', '🌡️', '👴', '🗃️', '📡', '🔒', '📵', '🕸️', '👁️', '🏗️', '🔀', '🌉', '💓', '✨'];
 
 type Tab = 'overview' | 'todos' | 'notes' | 'log';
 
@@ -32,6 +29,11 @@ export function DetailPanel({ idea, onClose }: DetailPanelProps) {
 
     function update(field: keyof Idea, value: unknown) {
         updateIdea(idea.id, { [field]: value });
+    }
+
+    function isValidUrl(url: string) {
+        if (!url) return true; // empty is fine
+        try { new URL(url); return true; } catch { return false; }
     }
 
     function handleStatusChange(newStatus: IdeaStatus) {
@@ -275,13 +277,17 @@ export function DetailPanel({ idea, onClose }: DetailPanelProps) {
                                         placeholder="https://github.com/..."
                                         value={idea.repoUrl}
                                         onChange={(e) => update('repoUrl', e.target.value)}
+                                        className={idea.repoUrl && !isValidUrl(idea.repoUrl) ? 'input-invalid' : ''}
                                     />
-                                    {idea.repoUrl && (
+                                    {idea.repoUrl && isValidUrl(idea.repoUrl) && (
                                         <button className="link-open-btn" onClick={() => window.open(idea.repoUrl, '_blank')}>
                                             <ExternalLink size={13} />
                                         </button>
                                     )}
                                 </div>
+                                {idea.repoUrl && !isValidUrl(idea.repoUrl) && (
+                                    <span className="url-warning">Not a valid URL (must start with https://)</span>
+                                )}
                             </div>
 
                             {/* Demo URL */}
@@ -293,13 +299,17 @@ export function DetailPanel({ idea, onClose }: DetailPanelProps) {
                                         placeholder="https://..."
                                         value={idea.demoUrl}
                                         onChange={(e) => update('demoUrl', e.target.value)}
+                                        className={idea.demoUrl && !isValidUrl(idea.demoUrl) ? 'input-invalid' : ''}
                                     />
-                                    {idea.demoUrl && (
+                                    {idea.demoUrl && isValidUrl(idea.demoUrl) && (
                                         <button className="link-open-btn" onClick={() => window.open(idea.demoUrl, '_blank')}>
                                             <ExternalLink size={13} />
                                         </button>
                                     )}
                                 </div>
+                                {idea.demoUrl && !isValidUrl(idea.demoUrl) && (
+                                    <span className="url-warning">Not a valid URL (must start with https://)</span>
+                                )}
                             </div>
 
                             {/* Meta */}

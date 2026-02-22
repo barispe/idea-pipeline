@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { useMemo } from 'react';
 import type { Idea, IdeaStatus, Todo, LogEntry } from '../types/idea';
 import { storage } from '../lib/storage';
 import { SEED_IDEAS } from '../lib/seedData';
@@ -285,7 +286,7 @@ export const useIdeasStore = create<IdeasStore>((set, get) => ({
 
 export function useFilteredIdeas() {
     const { ideas, filters } = useIdeasStore();
-    return ideas.filter((idea) => {
+    return useMemo(() => ideas.filter((idea) => {
         if (filters.search) {
             const q = filters.search.toLowerCase();
             if (
@@ -300,5 +301,5 @@ export function useFilteredIdeas() {
         if (filters.tag !== 'all' && !idea.tags.includes(filters.tag)) return false;
         if (filters.category !== 'all' && idea.category !== filters.category) return false;
         return true;
-    });
+    }), [ideas, filters]);
 }

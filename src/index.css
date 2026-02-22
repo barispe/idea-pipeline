@@ -1855,3 +1855,16 @@ input[type="range"]::-webkit-slider-thumb:hover {
   color: var(--accent);
   opacity: 1;
 }
+
+/* ─── URL validation ─── */
+.input-invalid {
+  border-color: rgba(239, 68, 68, 0.5) !important;
+  color: #fca5a5;
+}
+
+.url-warning {
+  display: block;
+  font-size: 11px;
+  color: #f87171;
+  margin-top: 3px;
+}

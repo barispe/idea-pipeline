@@ -21,6 +21,7 @@ import type { IdeaStatus, Idea } from '../types/idea';
 import { IdeaCard } from './IdeaCard';
 import { DetailPanel } from './DetailPanel';
 import { LayoutGrid, List } from 'lucide-react';
+import { BOARD_DROP_FLASH_DURATION } from '../lib/constants';
 
 // ─── Compact title row ─────────────────────────────────────────────────────
 function IdeaTitleRow({ idea, onClick }: { idea: Idea; onClick: () => void }) {
@@ -111,7 +112,7 @@ export function BoardView() {
             changeStatus(draggedIdea.id, targetStatus);
             // Brief flash on the destination column
             setDroppedColumn(targetStatus);
-            setTimeout(() => setDroppedColumn(null), 500);
+            setTimeout(() => setDroppedColumn(null), BOARD_DROP_FLASH_DURATION);
         }
     }
 

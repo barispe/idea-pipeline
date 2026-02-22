@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useIdeasStore } from '../store/useIdeasStore';
 import { STATUS_CONFIG, ALL_STATUSES } from '../types/idea';
 import { DetailPanel } from './DetailPanel';
@@ -8,28 +9,27 @@ export function DashboardView() {
     const { setSelectedIdea } = useIdeasStore();
     const selectedIdea = useIdeasStore((s) => s.ideas.find((i) => i.id === s.selectedIdeaId));
 
-    const total = ideas.length;
-    const published = ideas.filter((i) => i.status === 'published').length;
-    const building = ideas.filter((i) => i.status === 'building').length;
-    const avgProgress = total > 0
-        ? Math.round(ideas.reduce((s, i) => s + i.progress, 0) / total)
-        : 0;
-    const withRepo = ideas.filter((i) => i.repoUrl).length;
-    const totalTodos = ideas.reduce((s, i) => s + i.todos.length, 0);
-    const doneTodos = ideas.reduce((s, i) => s + i.todos.filter((t) => t.completed).length, 0);
-
-    // Top in-progress ideas sorted by progress
-    const topIdeas = [...ideas]
-        .filter((i) => i.status === 'building' || i.status === 'testing')
-        .sort((a, b) => b.progress - a.progress)
-        .slice(0, 5);
-
-    // Recent ideas
-    const recentIdeas = [...ideas]
-        .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
-        .slice(0, 8);
-
-    const maxCount = Math.max(...ALL_STATUSES.map((s) => ideas.filter((i) => i.status === s).length), 1);
+    // Memoize all derived stats so they only recalculate when ideas change
+    const { total, published, building, avgProgress, withRepo, totalTodos, doneTodos, topIdeas, recentIdeas, maxCount } = useMemo(() => {
+        const total = ideas.length;
+        const published = ideas.filter((i) => i.status === 'published').length;
+        const building = ideas.filter((i) => i.status === 'building').length;
+        const avgProgress = total > 0
+            ? Math.round(ideas.reduce((s, i) => s + i.progress, 0) / total)
+            : 0;
+        const withRepo = ideas.filter((i) => i.repoUrl).length;
+        const totalTodos = ideas.reduce((s, i) => s + i.todos.length, 0);
+        const doneTodos = ideas.reduce((s, i) => s + i.todos.filter((t) => t.completed).length, 0);
+        const topIdeas = [...ideas]
+            .filter((i) => i.status === 'building' || i.status === 'testing')
+            .sort((a, b) => b.progress - a.progress)
+            .slice(0, 5);
+        const recentIdeas = [...ideas]
+            .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+            .slice(0, 8);
+        const maxCount = Math.max(...ALL_STATUSES.map((s) => ideas.filter((i) => i.status === s).length), 1);
+        return { total, published, building, avgProgress, withRepo, totalTodos, doneTodos, topIdeas, recentIdeas, maxCount };
+    }, [ideas]);
 
     return (
         <>
