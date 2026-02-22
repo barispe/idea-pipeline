@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { format } from 'date-fns';
 import { marked } from 'marked';
 import {
@@ -9,8 +9,11 @@ import type { Idea, IdeaStatus } from '../types/idea';
 import { ALL_STATUSES, STATUS_CONFIG, PRIORITY_CONFIG } from '../types/idea';
 import { useIdeasStore } from '../store/useIdeasStore';
 import { EMOJIS } from '../lib/constants';
+import { useDebounce } from '../hooks/useDebounce';
 // categories pulled from store so custom categories appear here too
 import { StatusBadge, PriorityBadge, ProgressBar } from './Badges';
+
+const DEBOUNCE_MS = 600;
 
 type Tab = 'overview' | 'todos' | 'notes' | 'log';
 
@@ -29,9 +32,27 @@ export function DetailPanel({ idea, onClose }: DetailPanelProps) {
     const [confirmDelete, setConfirmDelete] = useState(false);
     const [notesPreview, setNotesPreview] = useState(false);
 
+    // Local state for heavy-text fields — debounced saves to avoid hammering storage
+    const [localDesc, setLocalDesc] = useState(idea.description);
+    const [localNotes, setLocalNotes] = useState(idea.notes);
+    const debouncedDesc = useDebounce(localDesc, DEBOUNCE_MS);
+    const debouncedNotes = useDebounce(localNotes, DEBOUNCE_MS);
+
+    // Sync local state when the idea changes (e.g. switched to a different idea)
+    useEffect(() => { setLocalDesc(idea.description); }, [idea.id]);
+    useEffect(() => { setLocalNotes(idea.notes); }, [idea.id]);
+
+    // Persist debounced values
+    useEffect(() => {
+        if (debouncedDesc !== idea.description) updateIdea(idea.id, { description: debouncedDesc });
+    }, [debouncedDesc]);
+    useEffect(() => {
+        if (debouncedNotes !== idea.notes) updateIdea(idea.id, { notes: debouncedNotes });
+    }, [debouncedNotes]);
+
     const notesHtml = useMemo(
-        () => marked(idea.notes || '_No notes yet. Switch to Edit to start writing._') as string,
-        [idea.notes]
+        () => marked(localNotes || '_No notes yet. Switch to Edit to start writing._') as string,
+        [localNotes]
     );
 
     function update(field: keyof Idea, value: unknown) {
@@ -141,8 +162,8 @@ export function DetailPanel({ idea, onClose }: DetailPanelProps) {
                                 <div className="field-label">Description</div>
                                 <textarea
                                     className="field-textarea"
-                                    value={idea.description}
-                                    onChange={(e) => update('description', e.target.value)}
+                                    value={localDesc}
+                                    onChange={(e) => setLocalDesc(e.target.value)}
                                     placeholder="Describe the idea..."
                                     style={{ minHeight: 80 }}
                                 />
@@ -446,8 +467,8 @@ export function DetailPanel({ idea, onClose }: DetailPanelProps) {
                             ) : (
                                 <textarea
                                     className="field-textarea"
-                                    value={idea.notes}
-                                    onChange={(e) => update('notes', e.target.value)}
+                                    value={localNotes}
+                                    onChange={(e) => setLocalNotes(e.target.value)}
                                     placeholder="Supports markdown: **bold**, _italic_, ## headings, - lists, [links](url)..."
                                     style={{ minHeight: 300, lineHeight: 1.7 }}
                                 />

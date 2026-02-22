@@ -3,7 +3,7 @@ import { format } from 'date-fns';
 import { useIdeasStore, useFilteredIdeas } from '../store/useIdeasStore';
 import { StatusBadge, PriorityBadge, ProgressBar } from './Badges';
 import { DetailPanel } from './DetailPanel';
-import { Github, ExternalLink, ChevronUp, ChevronDown } from 'lucide-react';
+import { Github, ExternalLink, ChevronUp, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 
 type SortField = 'updatedAt' | 'createdAt' | 'title' | 'progress' | 'priority';
 type SortDir = 'asc' | 'desc';
@@ -23,6 +23,8 @@ const SORT_OPTIONS: { key: SortField; label: string }[] = [
     { key: 'priority', label: 'Priority' },
 ];
 
+const PAGE_SIZE = 50;
+
 export function ListView() {
     const { setSelectedIdea, ideas: allIdeas, filters } = useIdeasStore();
     const filtered = useFilteredIdeas();
@@ -30,6 +32,7 @@ export function ListView() {
 
     const [sortField, setSortField] = useState<SortField>('updatedAt');
     const [sortDir, setSortDir] = useState<SortDir>('desc');
+    const [page, setPage] = useState(0);
 
     function handleSort(field: SortField) {
         if (field === sortField) {
@@ -38,9 +41,10 @@ export function ListView() {
             setSortField(field);
             setSortDir('desc');
         }
+        setPage(0); // reset to first page on sort change
     }
 
-    const ideas = useMemo(() => {
+    const sorted = useMemo(() => {
         return [...filtered].sort((a, b) => {
             let cmp = 0;
             switch (sortField) {
@@ -64,6 +68,11 @@ export function ListView() {
         });
     }, [filtered, sortField, sortDir]);
 
+    // Reset to page 0 whenever filtered list changes
+    const totalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
+    const safePage = Math.min(page, totalPages - 1);
+    const ideas = sorted.slice(safePage * PAGE_SIZE, (safePage + 1) * PAGE_SIZE);
+
     const hasFiltersApplied =
         filters.search !== '' ||
         filters.status !== 'all' ||
@@ -71,7 +80,7 @@ export function ListView() {
         filters.tag !== 'all' ||
         filters.category !== 'all';
 
-    if (ideas.length === 0) {
+    if (sorted.length === 0) {
         return (
             <div className="list-container">
                 <div className="empty-state">
@@ -119,7 +128,7 @@ export function ListView() {
                             )}
                         </button>
                     ))}
-                    <span className="list-sort-count">{ideas.length} idea{ideas.length !== 1 ? 's' : ''}</span>
+                    <span className="list-sort-count">{sorted.length} idea{sorted.length !== 1 ? 's' : ''}</span>
                 </div>
 
                 {ideas.map((idea) => {
@@ -147,6 +156,34 @@ export function ListView() {
                         </div>
                     );
                 })}
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                    <div className="list-pagination">
+                        <button
+                            className="list-page-btn"
+                            disabled={safePage === 0}
+                            onClick={() => setPage(safePage - 1)}
+                            aria-label="Previous page"
+                        >
+                            <ChevronLeft size={14} />
+                        </button>
+                        <span className="list-page-info">
+                            Page {safePage + 1} of {totalPages}
+                            <span style={{ color: 'var(--text-muted)', marginLeft: 6 }}>
+                                ({safePage * PAGE_SIZE + 1}–{Math.min((safePage + 1) * PAGE_SIZE, sorted.length)} of {sorted.length})
+                            </span>
+                        </span>
+                        <button
+                            className="list-page-btn"
+                            disabled={safePage >= totalPages - 1}
+                            onClick={() => setPage(safePage + 1)}
+                            aria-label="Next page"
+                        >
+                            <ChevronRight size={14} />
+                        </button>
+                    </div>
+                )}
             </div>
 
             {selectedIdea && (

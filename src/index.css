@@ -2161,3 +2161,39 @@ input[type="range"]::-webkit-slider-thumb:hover {
     border-top: 1px solid var(--border);
     text-align: center;
 }
+
+/* ── ListView Pagination (P2) ── */
+.list-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 16px 0 8px;
+    border-top: 1px solid var(--border);
+    margin-top: 4px;
+}
+.list-page-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg-input);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}
+.list-page-btn:hover:not(:disabled) {
+    background: var(--bg-card-hover);
+    color: var(--text-primary);
+}
+.list-page-btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+.list-page-info {
+    font-size: 12.5px;
+    color: var(--text-secondary);
+}
