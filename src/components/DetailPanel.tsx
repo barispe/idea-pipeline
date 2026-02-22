@@ -58,7 +58,6 @@ export function DetailPanel({ idea, onClose }: DetailPanelProps) {
             onClose();
         } else {
             setConfirmDelete(true);
-            setTimeout(() => setConfirmDelete(false), 3000);
         }
     }
 
@@ -247,12 +246,24 @@ export function DetailPanel({ idea, onClose }: DetailPanelProps) {
                             {/* Target Date */}
                             <div className="field-group">
                                 <div className="field-label"><Calendar size={11} style={{ display: 'inline', marginRight: 4 }} />Target Date</div>
-                                <input
-                                    className="field-input"
-                                    type="date"
-                                    value={idea.targetDate ?? ''}
-                                    onChange={(e) => update('targetDate', e.target.value || null)}
-                                />
+                                <div className="date-clear-row">
+                                    <input
+                                        className="field-input"
+                                        type="date"
+                                        style={{ flex: 1 }}
+                                        value={idea.targetDate ?? ''}
+                                        onChange={(e) => update('targetDate', e.target.value || null)}
+                                    />
+                                    {idea.targetDate && (
+                                        <button
+                                            className="date-clear-btn"
+                                            title="Clear target date"
+                                            onClick={() => update('targetDate', null)}
+                                        >
+                                            <X size={13} />
+                                        </button>
+                                    )}
+                                </div>
                             </div>
 
                             {/* Repo URL */}
@@ -303,10 +314,22 @@ export function DetailPanel({ idea, onClose }: DetailPanelProps) {
 
                             {/* Delete */}
                             <div style={{ paddingTop: 4 }}>
-                                <button className="btn btn-danger" onClick={handleDelete} style={{ width: '100%', justifyContent: 'center' }}>
-                                    <Trash2 size={14} />
-                                    {confirmDelete ? 'Click again to confirm delete' : 'Delete Idea'}
-                                </button>
+                                {confirmDelete ? (
+                                    <div className="delete-confirm-row">
+                                        <span className="delete-confirm-label">⚠️ This cannot be undone.</span>
+                                        <button className="btn btn-danger" onClick={handleDelete} style={{ padding: '6px 14px' }}>
+                                            Yes, delete
+                                        </button>
+                                        <button className="btn btn-ghost" onClick={() => setConfirmDelete(false)} style={{ padding: '6px 14px' }}>
+                                            Cancel
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <button className="btn btn-danger" onClick={handleDelete} style={{ width: '100%', justifyContent: 'center' }}>
+                                        <Trash2 size={14} />
+                                        Delete Idea
+                                    </button>
+                                )}
                             </div>
                         </>
                     )}

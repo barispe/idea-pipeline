@@ -25,6 +25,17 @@ export function Sidebar({ onNewIdea }: SidebarProps) {
 
     const allTags = Array.from(new Set(ideas.flatMap((i) => i.tags))).sort();
 
+    const hasActiveFilters =
+        filters.status !== 'all' ||
+        filters.priority !== 'all' ||
+        filters.tag !== 'all' ||
+        filters.category !== 'all' ||
+        filters.search !== '';
+
+    function clearAllFilters() {
+        setFilters({ status: 'all', priority: 'all', tag: 'all', category: 'all', search: '' });
+    }
+
     return (
         <div className="sidebar">
             {/* Logo */}
@@ -38,6 +49,15 @@ export function Sidebar({ onNewIdea }: SidebarProps) {
                 <button className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }} onClick={onNewIdea}>
                     <Plus size={15} /> New Idea
                 </button>
+                {hasActiveFilters && (
+                    <button
+                        className="btn btn-ghost clear-filters-btn"
+                        onClick={clearAllFilters}
+                        title="Clear all active filters"
+                    >
+                        <X size={12} /> Clear filters
+                    </button>
+                )}
             </div>
 
             {/* Views */}
@@ -153,7 +173,10 @@ export function Sidebar({ onNewIdea }: SidebarProps) {
                             <span className="nav-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                 {getCategoryEmoji(cat)}
                             </span>
-                            <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            <span
+                                style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                                title={cat.charAt(0).toUpperCase() + cat.slice(1)}
+                            >
                                 {cat.charAt(0).toUpperCase() + cat.slice(1)}
                             </span>
                             {count > 0 && <span className="nav-count">{count}</span>}

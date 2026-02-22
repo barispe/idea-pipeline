@@ -5,17 +5,38 @@ import { DetailPanel } from './DetailPanel';
 import { Github, ExternalLink } from 'lucide-react';
 
 export function ListView() {
-    const { setSelectedIdea } = useIdeasStore();
+    const { setSelectedIdea, ideas: allIdeas, filters } = useIdeasStore();
     const ideas = useFilteredIdeas();
     const selectedIdea = useIdeasStore((s) => s.ideas.find((i) => i.id === s.selectedIdeaId));
+
+    const hasFiltersApplied =
+        filters.search !== '' ||
+        filters.status !== 'all' ||
+        filters.priority !== 'all' ||
+        filters.tag !== 'all' ||
+        filters.category !== 'all';
 
     if (ideas.length === 0) {
         return (
             <div className="list-container">
                 <div className="empty-state">
-                    <span className="empty-state-icon">🔍</span>
-                    <span className="empty-state-title">No ideas match your filters</span>
-                    <span className="empty-state-desc">Try adjusting your search or filters</span>
+                    {allIdeas.length === 0 ? (
+                        <>
+                            <span className="empty-state-icon">💡</span>
+                            <span className="empty-state-title">No ideas yet</span>
+                            <span className="empty-state-desc">Click "New Idea" in the sidebar to capture your first idea!</span>
+                        </>
+                    ) : (
+                        <>
+                            <span className="empty-state-icon">🔍</span>
+                            <span className="empty-state-title">No ideas match your filters</span>
+                            <span className="empty-state-desc">
+                                {hasFiltersApplied
+                                    ? 'Try adjusting your search or clearing the active filters in the sidebar.'
+                                    : 'No ideas in this view.'}
+                            </span>
+                        </>
+                    )}
                 </div>
             </div>
         );

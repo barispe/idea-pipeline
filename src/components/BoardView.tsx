@@ -76,6 +76,7 @@ export function BoardView() {
     const selectedIdea = useIdeasStore((s) => s.ideas.find((i) => i.id === s.selectedIdeaId));
     const [compact, setCompact] = useState(false);
     const [activeIdea, setActiveIdea] = useState<Idea | null>(null);
+    const [droppedColumn, setDroppedColumn] = useState<string | null>(null);
 
     const sensors = useSensors(
         useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
@@ -108,6 +109,9 @@ export function BoardView() {
 
         if (targetStatus && targetStatus !== draggedIdea.status) {
             changeStatus(draggedIdea.id, targetStatus);
+            // Brief flash on the destination column
+            setDroppedColumn(targetStatus);
+            setTimeout(() => setDroppedColumn(null), 500);
         }
     }
 
@@ -155,6 +159,7 @@ export function BoardView() {
                                 cfg={cfg}
                                 col={col}
                                 compact={compact}
+                                flashDrop={droppedColumn === status}
                                 onCardClick={(id) => setSelectedIdea(id)}
                             />
                         );
@@ -191,12 +196,14 @@ function BoardColumn({
     cfg,
     col,
     compact,
+    flashDrop,
     onCardClick,
 }: {
     status: IdeaStatus;
     cfg: (typeof STATUS_CONFIG)[IdeaStatus];
     col: Idea[];
     compact: boolean;
+    flashDrop: boolean;
     onCardClick: (id: string) => void;
 }) {
     const { setNodeRef, isOver } = useSortable({ id: status });
@@ -204,7 +211,7 @@ function BoardColumn({
     return (
         <div
             ref={setNodeRef}
-            className={`board-column${isOver ? ' board-column-over' : ''}`}
+            className={`board-column${isOver ? ' board-column-over' : ''}${flashDrop ? ' board-column-drop-flash' : ''}`}
         >
             <div
                 className="board-column-header"
