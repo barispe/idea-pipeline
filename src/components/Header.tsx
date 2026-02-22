@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 import { useIdeasStore } from '../store/useIdeasStore';
-import { LayoutDashboard, Columns2, List, Clock, Search, AlignLeft, Download, Upload, X } from 'lucide-react';
+import { LayoutDashboard, Columns2, List, Clock, Search, AlignLeft, Download, Upload, X, Keyboard } from 'lucide-react';
 
 const VIEW_LABELS: Record<string, string> = {
     dashboard: '📊 Dashboard',
@@ -11,9 +11,10 @@ const VIEW_LABELS: Record<string, string> = {
 
 interface HeaderProps {
     onNewIdea: () => void;
+    onShowShortcuts: () => void;
 }
 
-export function Header({ onNewIdea }: HeaderProps) {
+export function Header({ onNewIdea, onShowShortcuts }: HeaderProps) {
     const { view, setView, filters, setFilters, exportIdeas, importIdeas, importError, clearImportError } = useIdeasStore();
     const importRef = useRef<HTMLInputElement>(null);
 
@@ -49,6 +50,7 @@ export function Header({ onNewIdea }: HeaderProps) {
                 <div className="header-search">
                     <Search size={14} className="search-icon" />
                     <input
+                        className="search-input"
                         aria-label="Search ideas"
                         placeholder="Search ideas..."
                         value={filters.search}
@@ -83,6 +85,16 @@ export function Header({ onNewIdea }: HeaderProps) {
                         style={{ display: 'none' }}
                         onChange={handleImport}
                     />
+
+                    {/* Keyboard shortcuts help */}
+                    <button
+                        className="btn btn-ghost header-icon-btn"
+                        title="Keyboard shortcuts (?)"
+                        aria-label="Show keyboard shortcuts"
+                        onClick={onShowShortcuts}
+                    >
+                        <Keyboard size={14} />
+                    </button>
 
                     {/* View switcher */}
                     <div style={{ display: 'flex', gap: 4, background: 'var(--bg-input)', borderRadius: 'var(--radius-sm)', padding: 3 }}>
