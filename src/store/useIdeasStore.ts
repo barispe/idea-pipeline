@@ -43,6 +43,9 @@ interface IdeasStore {
     setView: (view: IdeasStore['view']) => void;
     changeStatus: (id: string, newStatus: IdeaStatus) => Promise<void>;
     exportIdeas: () => void;
+    exportIdea: (id: string) => void;
+    exportIdeasCsv: () => void;
+    duplicateIdea: (id: string) => Promise<void>;
     importIdeas: (file: File) => Promise<void>;
     addCategory: (name: string) => Promise<void>;
     removeCategory: (name: string) => Promise<void>;
@@ -246,6 +249,67 @@ export const useIdeasStore = create<IdeasStore>((set, get) => ({
         a.download = `ideas-export-${new Date().toISOString().slice(0, 10)}.json`;
         a.click();
         URL.revokeObjectURL(url);
+    },
+
+    exportIdea: (id: string) => {
+        const idea = get().ideas.find((i) => i.id === id);
+        if (!idea) return;
+        const json = JSON.stringify([idea], null, 2);
+        const blob = new Blob([json], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        const safeName = idea.title.replace(/[^a-z0-9]/gi, '-').toLowerCase().slice(0, 40);
+        a.download = `idea-${safeName}-${new Date().toISOString().slice(0, 10)}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+    },
+
+    exportIdeasCsv: () => {
+        const { ideas } = get();
+        const headers = ['id', 'title', 'description', 'status', 'priority', 'category', 'progress', 'tags', 'techStack', 'repoUrl', 'demoUrl', 'targetDate', 'createdAt', 'updatedAt'];
+        const escape = (v: unknown) => {
+            const s = String(v ?? '');
+            return s.includes(',') || s.includes('"') || s.includes('\n')
+                ? `"${s.replace(/"/g, '""')}"`
+                : s;
+        };
+        const rows = ideas.map((i) => [
+            i.id, i.title, i.description, i.status, i.priority,
+            i.category, i.progress, i.tags.join(';'), i.techStack.join(';'),
+            i.repoUrl, i.demoUrl, i.targetDate ?? '', i.createdAt, i.updatedAt,
+        ].map(escape).join(','));
+        const csv = [headers.join(','), ...rows].join('\n');
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `ideas-export-${new Date().toISOString().slice(0, 10)}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+    },
+
+    duplicateIdea: async (id: string) => {
+        const idea = get().ideas.find((i) => i.id === id);
+        if (!idea) return;
+        const now = new Date().toISOString();
+        const dup: Idea = {
+            ...idea,
+            id: makeId(),
+            title: `${idea.title} (copy)`,
+            createdAt: now,
+            updatedAt: now,
+            logs: [
+                {
+                    id: makeId(),
+                    message: `Duplicated from "${idea.title}"`,
+                    type: 'status_change',
+                    createdAt: now,
+                },
+            ],
+        };
+        await storage.save(dup);
+        set((s) => ({ ideas: [dup, ...s.ideas], savedAt: Date.now() }));
     },
 
     importIdeas: async (file: File) => {

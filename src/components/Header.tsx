@@ -17,7 +17,7 @@ interface HeaderProps {
 }
 
 export function Header({ onNewIdea, onShowShortcuts, theme, onToggleTheme }: HeaderProps) {
-    const { view, setView, filters, setFilters, exportIdeas, importIdeas, importError, clearImportError } = useIdeasStore();
+    const { view, setView, filters, setFilters, exportIdeas, exportIdeasCsv, importIdeas, importError, clearImportError } = useIdeasStore();
     const importRef = useRef<HTMLInputElement>(null);
 
     async function handleImport(e: React.ChangeEvent<HTMLInputElement>) {
@@ -64,12 +64,21 @@ export function Header({ onNewIdea, onShowShortcuts, theme, onToggleTheme }: Hea
                     {/* Export / Import */}
                     <button
                         className="btn btn-ghost header-icon-btn"
-                        title="Export ideas to JSON"
-                        aria-label="Export ideas to JSON"
+                        title="Export all ideas to JSON"
+                        aria-label="Export all ideas to JSON"
                         onClick={exportIdeas}
                     >
                         <Download size={14} />
-                        <span>Export</span>
+                        <span>JSON</span>
+                    </button>
+                    <button
+                        className="btn btn-ghost header-icon-btn"
+                        title="Export all ideas to CSV"
+                        aria-label="Export all ideas to CSV"
+                        onClick={exportIdeasCsv}
+                    >
+                        <Download size={14} />
+                        <span>CSV</span>
                     </button>
                     <button
                         className="btn btn-ghost header-icon-btn"

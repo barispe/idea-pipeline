@@ -3,7 +3,7 @@ import { format } from 'date-fns';
 import { marked } from 'marked';
 import {
     X, Github, ExternalLink, Check, Trash2, Plus,
-    ChevronDown, Clock, Calendar, Eye, Edit2
+    ChevronDown, Clock, Calendar, Eye, Edit2, Copy, Download
 } from 'lucide-react';
 import type { Idea, IdeaStatus } from '../types/idea';
 import { ALL_STATUSES, STATUS_CONFIG, PRIORITY_CONFIG } from '../types/idea';
@@ -20,7 +20,7 @@ interface DetailPanelProps {
 }
 
 export function DetailPanel({ idea, onClose }: DetailPanelProps) {
-    const { updateIdea, deleteIdea, addTodo, toggleTodo, deleteTodo, addLog, changeStatus, categories } = useIdeasStore();
+    const { updateIdea, deleteIdea, addTodo, toggleTodo, deleteTodo, addLog, changeStatus, categories, exportIdea, duplicateIdea } = useIdeasStore();
 
     const [tab, setTab] = useState<Tab>('overview');
     const [todoInput, setTodoInput] = useState('');
@@ -327,6 +327,26 @@ export function DetailPanel({ idea, onClose }: DetailPanelProps) {
                                 <div style={{ fontSize: 11, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 4 }}>
                                     <Clock size={11} /> Updated {format(new Date(idea.updatedAt), 'MMM d, yyyy')}
                                 </div>
+                            </div>
+
+                            {/* Actions row: duplicate + export */}
+                            <div style={{ display: 'flex', gap: 8, paddingTop: 4 }}>
+                                <button
+                                    className="btn btn-ghost"
+                                    style={{ flex: 1, justifyContent: 'center' }}
+                                    title="Duplicate this idea"
+                                    onClick={() => { duplicateIdea(idea.id); onClose(); }}
+                                >
+                                    <Copy size={13} /> Duplicate
+                                </button>
+                                <button
+                                    className="btn btn-ghost"
+                                    style={{ flex: 1, justifyContent: 'center' }}
+                                    title="Export this idea as JSON"
+                                    onClick={() => exportIdea(idea.id)}
+                                >
+                                    <Download size={13} /> Export
+                                </button>
                             </div>
 
                             {/* Delete */}
