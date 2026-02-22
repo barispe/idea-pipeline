@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { format } from 'date-fns';
+import { marked } from 'marked';
 import {
     X, Github, ExternalLink, Check, Trash2, Plus,
-    ChevronDown, Clock, Calendar
+    ChevronDown, Clock, Calendar, Eye, Edit2
 } from 'lucide-react';
 import type { Idea, IdeaStatus } from '../types/idea';
 import { ALL_STATUSES, STATUS_CONFIG, PRIORITY_CONFIG } from '../types/idea';
@@ -26,6 +27,12 @@ export function DetailPanel({ idea, onClose }: DetailPanelProps) {
     const [logInput, setLogInput] = useState('');
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
     const [confirmDelete, setConfirmDelete] = useState(false);
+    const [notesPreview, setNotesPreview] = useState(false);
+
+    const notesHtml = useMemo(
+        () => marked(idea.notes || '_No notes yet. Switch to Edit to start writing._') as string,
+        [idea.notes]
+    );
 
     function update(field: keyof Idea, value: unknown) {
         updateIdea(idea.id, { [field]: value });
@@ -392,14 +399,39 @@ export function DetailPanel({ idea, onClose }: DetailPanelProps) {
                     {/* ─── NOTES TAB ─── */}
                     {tab === 'notes' && (
                         <div className="field-group" style={{ flex: 1 }}>
-                            <div className="field-label">Notes (markdown-friendly)</div>
-                            <textarea
-                                className="field-textarea"
-                                value={idea.notes}
-                                onChange={(e) => update('notes', e.target.value)}
-                                placeholder="Add detailed notes, links, resources, ideas..."
-                                style={{ minHeight: 300, lineHeight: 1.7 }}
-                            />
+                            <div className="notes-tab-header">
+                                <div className="field-label">Notes</div>
+                                <div className="notes-toggle">
+                                    <button
+                                        className={`notes-toggle-btn${!notesPreview ? ' active' : ''}`}
+                                        onClick={() => setNotesPreview(false)}
+                                        title="Edit"
+                                    >
+                                        <Edit2 size={12} /> Edit
+                                    </button>
+                                    <button
+                                        className={`notes-toggle-btn${notesPreview ? ' active' : ''}`}
+                                        onClick={() => setNotesPreview(true)}
+                                        title="Preview rendered markdown"
+                                    >
+                                        <Eye size={12} /> Preview
+                                    </button>
+                                </div>
+                            </div>
+                            {notesPreview ? (
+                                <div
+                                    className="notes-preview"
+                                    dangerouslySetInnerHTML={{ __html: notesHtml }}
+                                />
+                            ) : (
+                                <textarea
+                                    className="field-textarea"
+                                    value={idea.notes}
+                                    onChange={(e) => update('notes', e.target.value)}
+                                    placeholder="Supports markdown: **bold**, _italic_, ## headings, - lists, [links](url)..."
+                                    style={{ minHeight: 300, lineHeight: 1.7 }}
+                                />
+                            )}
                         </div>
                     )}
 
