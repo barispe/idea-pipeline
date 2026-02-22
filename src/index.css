@@ -1979,3 +1979,46 @@ input[type="range"]::-webkit-slider-thumb:hover {
 }
 .notes-preview strong { color: var(--text-primary); font-weight: 700; }
 .notes-preview em { font-style: italic; }
+
+/* ── List View Sort Bar (F2) ── */
+.list-sort-bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 0 12px;
+    flex-wrap: wrap;
+}
+.list-sort-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-right: 2px;
+}
+.list-sort-btn {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    padding: 5px 10px;
+    border-radius: 7px;
+    border: 1px solid var(--border);
+    background: var(--bg-input);
+    color: var(--text-muted);
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.list-sort-btn:hover {
+    background: var(--bg-card);
+    color: var(--text-secondary);
+}
+.list-sort-btn.active {
+    background: rgba(99,102,241,0.15);
+    border-color: rgba(99,102,241,0.4);
+    color: #a5b4fc;
+}
+.list-sort-count {
+    margin-left: auto;
+    font-size: 11px;
+    color: var(--text-muted);
+}
