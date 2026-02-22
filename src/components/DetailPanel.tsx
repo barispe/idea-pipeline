@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { format } from 'date-fns';
 import { marked } from 'marked';
 import {
@@ -93,10 +93,36 @@ export function DetailPanel({ idea, onClose }: DetailPanelProps) {
 
     const doneTodos = idea.todos.filter((t) => t.completed).length;
 
+    // A2: Focus trap — keep Tab/Shift+Tab inside the panel
+    const panelRef = useRef<HTMLDivElement>(null);
+    useEffect(() => {
+        const FOCUSABLE = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+        function trapFocus(e: KeyboardEvent) {
+            if (e.key !== 'Tab' || !panelRef.current) return;
+            const els = Array.from(panelRef.current.querySelectorAll<HTMLElement>(FOCUSABLE))
+                .filter((el) => !el.hasAttribute('disabled'));
+            if (els.length === 0) return;
+            const first = els[0];
+            const last = els[els.length - 1];
+            if (e.shiftKey && document.activeElement === first) {
+                e.preventDefault();
+                last.focus();
+            } else if (!e.shiftKey && document.activeElement === last) {
+                e.preventDefault();
+                first.focus();
+            }
+        }
+        window.addEventListener('keydown', trapFocus);
+        // Focus first focusable element on open
+        const firstFocusable = panelRef.current?.querySelector<HTMLElement>(FOCUSABLE);
+        firstFocusable?.focus();
+        return () => window.removeEventListener('keydown', trapFocus);
+    }, []);
+
     return (
         <>
             <div className="panel-overlay" onClick={onClose} />
-            <div className="detail-panel">
+            <div className="detail-panel" ref={panelRef} role="dialog" aria-modal="true" aria-label={`Edit idea: ${idea.title}`}>
                 {/* Header */}
                 <div className="panel-header">
                     <div
@@ -121,19 +147,22 @@ export function DetailPanel({ idea, onClose }: DetailPanelProps) {
                             )}
                         </div>
                     </div>
-                    <button className="panel-close" onClick={onClose}><X size={18} /></button>
+                    <button className="panel-close" onClick={onClose} aria-label="Close panel"><X size={18} /></button>
                 </div>
 
                 {/* Emoji picker */}
                 {showEmojiPicker && (
                     <div style={{ padding: '10px 20px', borderBottom: '1px solid var(--border)' }}>
-                        <div className="emoji-row">
+                        <div className="emoji-row" role="group" aria-label="Choose icon">
                             {EMOJIS.map((e) => (
-                                <div
+                                <button
                                     key={e}
+                                    type="button"
                                     className={`emoji-opt ${idea.coverEmoji === e ? 'selected' : ''}`}
                                     onClick={() => { update('coverEmoji', e); setShowEmojiPicker(false); }}
-                                >{e}</div>
+                                    aria-label={`Select emoji ${e}`}
+                                    aria-pressed={idea.coverEmoji === e}
+                                >{e}</button>
                             ))}
                         </div>
                     </div>
@@ -427,7 +456,7 @@ export function DetailPanel({ idea, onClose }: DetailPanelProps) {
                                             <span className={`todo-text ${todo.completed ? 'done' : ''}`}>
                                                 {todo.text}
                                             </span>
-                                            <button className="todo-delete" onClick={() => deleteTodo(idea.id, todo.id)}>
+                                            <button className="todo-delete" onClick={() => deleteTodo(idea.id, todo.id)} aria-label={`Delete task: ${todo.text}`}>
                                                 <X size={13} />
                                             </button>
                                         </div>

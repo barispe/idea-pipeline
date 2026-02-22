@@ -57,31 +57,35 @@ export function IdeaForm({ onClose, onSubmit, initial, title = 'New Idea' }: Ide
 
     return (
         <div className="modal-overlay" onClick={onClose}>
-            <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal" role="dialog" aria-modal="true" aria-label={title} onClick={(e) => e.stopPropagation()}>
                 <div className="modal-header">
                     <span className="modal-title">✨ {title}</span>
-                    <button className="panel-close" onClick={onClose}><X size={18} /></button>
+                    <button className="panel-close" onClick={onClose} aria-label="Close form"><X size={18} /></button>
                 </div>
                 <form onSubmit={handleSubmit}>
                     <div className="modal-body">
-                        {/* Emoji */}
+                        {/* Emoji — A1: each emoji is a <button> */}
                         <div className="field-group">
-                            <div className="field-label">Icon</div>
-                            <div className="emoji-row">
+                            <label className="field-label" id="emoji-label">Icon</label>
+                            <div className="emoji-row" role="group" aria-labelledby="emoji-label">
                                 {EMOJIS.map((e) => (
-                                    <div
+                                    <button
                                         key={e}
+                                        type="button"
                                         className={`emoji-opt ${form.coverEmoji === e ? 'selected' : ''}`}
                                         onClick={() => set('coverEmoji', e)}
-                                    >{e}</div>
+                                        aria-label={`Select emoji ${e}`}
+                                        aria-pressed={form.coverEmoji === e}
+                                    >{e}</button>
                                 ))}
                             </div>
                         </div>
 
-                        {/* Title */}
+                        {/* Title — A3: <label htmlFor> */}
                         <div className="field-group">
-                            <div className="field-label">Title *</div>
+                            <label className="field-label" htmlFor="form-title">Title *</label>
                             <input
+                                id="form-title"
                                 className="field-input"
                                 placeholder="What's the idea?"
                                 value={form.title}
@@ -93,8 +97,9 @@ export function IdeaForm({ onClose, onSubmit, initial, title = 'New Idea' }: Ide
 
                         {/* Description */}
                         <div className="field-group">
-                            <div className="field-label">Description</div>
+                            <label className="field-label" htmlFor="form-desc">Description</label>
                             <textarea
+                                id="form-desc"
                                 className="field-textarea"
                                 placeholder="Describe the problem it solves..."
                                 value={form.description}
@@ -106,8 +111,9 @@ export function IdeaForm({ onClose, onSubmit, initial, title = 'New Idea' }: Ide
                         <div className="fields-row">
                             {/* Status */}
                             <div className="field-group">
-                                <div className="field-label">Status</div>
+                                <label className="field-label" htmlFor="form-status">Status</label>
                                 <select
+                                    id="form-status"
                                     className="field-select"
                                     value={form.status}
                                     onChange={(e) => set('status', e.target.value)}
@@ -122,8 +128,9 @@ export function IdeaForm({ onClose, onSubmit, initial, title = 'New Idea' }: Ide
 
                             {/* Priority */}
                             <div className="field-group">
-                                <div className="field-label">Priority</div>
+                                <label className="field-label" htmlFor="form-priority">Priority</label>
                                 <select
+                                    id="form-priority"
                                     className="field-select"
                                     value={form.priority}
                                     onChange={(e) => set('priority', e.target.value)}
@@ -139,8 +146,9 @@ export function IdeaForm({ onClose, onSubmit, initial, title = 'New Idea' }: Ide
                         <div className="fields-row">
                             {/* Category */}
                             <div className="field-group">
-                                <div className="field-label">Category</div>
+                                <label className="field-label" htmlFor="form-category">Category</label>
                                 <select
+                                    id="form-category"
                                     className="field-select"
                                     value={form.category}
                                     onChange={(e) => set('category', e.target.value)}
@@ -155,8 +163,9 @@ export function IdeaForm({ onClose, onSubmit, initial, title = 'New Idea' }: Ide
 
                             {/* Target Date */}
                             <div className="field-group">
-                                <div className="field-label">Target Date</div>
+                                <label className="field-label" htmlFor="form-date">Target Date</label>
                                 <input
+                                    id="form-date"
                                     className="field-input"
                                     type="date"
                                     value={form.targetDate}
@@ -167,8 +176,9 @@ export function IdeaForm({ onClose, onSubmit, initial, title = 'New Idea' }: Ide
 
                         {/* Tags */}
                         <div className="field-group">
-                            <div className="field-label">Tags (comma separated)</div>
+                            <label className="field-label" htmlFor="form-tags">Tags (comma separated)</label>
                             <input
+                                id="form-tags"
                                 className="field-input"
                                 placeholder="AI, CLI, Python..."
                                 value={form.tags}
@@ -178,8 +188,9 @@ export function IdeaForm({ onClose, onSubmit, initial, title = 'New Idea' }: Ide
 
                         {/* Tech Stack */}
                         <div className="field-group">
-                            <div className="field-label">Tech Stack (comma separated)</div>
+                            <label className="field-label" htmlFor="form-stack">Tech Stack (comma separated)</label>
                             <input
+                                id="form-stack"
                                 className="field-input"
                                 placeholder="React, Node.js, PostgreSQL..."
                                 value={form.techStack}
@@ -190,8 +201,9 @@ export function IdeaForm({ onClose, onSubmit, initial, title = 'New Idea' }: Ide
                         <div className="fields-row">
                             {/* Repo */}
                             <div className="field-group">
-                                <div className="field-label">Repo URL</div>
+                                <label className="field-label" htmlFor="form-repo">Repo URL</label>
                                 <input
+                                    id="form-repo"
                                     className="field-input"
                                     placeholder="https://github.com/..."
                                     value={form.repoUrl}
@@ -201,8 +213,9 @@ export function IdeaForm({ onClose, onSubmit, initial, title = 'New Idea' }: Ide
 
                             {/* Demo */}
                             <div className="field-group">
-                                <div className="field-label">Demo / Live URL</div>
+                                <label className="field-label" htmlFor="form-demo">Demo / Live URL</label>
                                 <input
+                                    id="form-demo"
                                     className="field-input"
                                     placeholder="https://..."
                                     value={form.demoUrl}
