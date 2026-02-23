@@ -55,6 +55,31 @@ function makeId() {
     return Math.random().toString(36).slice(2) + Date.now().toString(36);
 }
 
+/** Ensure all array/optional fields exist — guards against old stored data or partial imports */
+function normalizeIdea(raw: unknown): Idea {
+    const r = (raw ?? {}) as Record<string, unknown>;
+    return {
+        id: String(r.id ?? makeId()),
+        title: String(r.title ?? ''),
+        description: String(r.description ?? ''),
+        status: (r.status as Idea['status']) ?? 'spark',
+        priority: (r.priority as Idea['priority']) ?? 'medium',
+        category: String(r.category ?? 'project'),
+        coverEmoji: String(r.coverEmoji ?? '💡'),
+        progress: Math.min(100, Math.max(0, Number(r.progress) || 0)),
+        notes: String(r.notes ?? ''),
+        repoUrl: String(r.repoUrl ?? ''),
+        demoUrl: String(r.demoUrl ?? ''),
+        targetDate: r.targetDate != null ? String(r.targetDate) : null,
+        tags: Array.isArray(r.tags) ? r.tags : [],
+        techStack: Array.isArray(r.techStack) ? r.techStack : [],
+        todos: Array.isArray(r.todos) ? r.todos : [],
+        logs: Array.isArray(r.logs) ? r.logs : [],
+        createdAt: String(r.createdAt ?? new Date().toISOString()),
+        updatedAt: String(r.updatedAt ?? new Date().toISOString()),
+    };
+}
+
 export const useIdeasStore = create<IdeasStore>((set, get) => ({
     ideas: [],
     filters: { search: '', status: 'all', priority: 'all', tag: 'all', category: 'all' },
@@ -75,11 +100,11 @@ export const useIdeasStore = create<IdeasStore>((set, get) => ({
                 await localforage.setItem(DB_VERSION_KEY, CURRENT_DB_VERSION);
             }
 
-            let ideas = await storage.getAll();
+            let ideas = (await storage.getAll()).map(normalizeIdea);
             if (ideas.length === 0) {
                 // Seed in parallel for speed
                 await Promise.all(SEED_IDEAS.map((idea) => storage.save(idea)));
-                ideas = await storage.getAll();
+                ideas = (await storage.getAll()).map(normalizeIdea);
             }
             // Load custom categories from storage
             const saved = await localforage.getItem<string[]>(CATEGORIES_KEY);
@@ -88,7 +113,7 @@ export const useIdeasStore = create<IdeasStore>((set, get) => ({
         } catch (err) {
             console.error('Failed to load ideas from storage:', err);
             // Fall back to in-memory seed data so the app still works
-            set({ ideas: SEED_IDEAS, loading: false });
+            set({ ideas: SEED_IDEAS.map(normalizeIdea), loading: false });
         }
     },
 
@@ -318,16 +343,12 @@ export const useIdeasStore = create<IdeasStore>((set, get) => ({
         try {
             const parsed = JSON.parse(text);
             if (!Array.isArray(parsed)) throw new Error('Root must be an array');
-            // Basic shape validation + clamp progress to 0-100
+            // Basic shape validation + normalize all fields
             imported = parsed.map((item: unknown) => {
                 if (typeof item !== 'object' || item === null || !('id' in item) || !('title' in item)) {
                     throw new Error('Each item must be an object with at least id and title');
                 }
-                const idea = item as Idea;
-                return {
-                    ...idea,
-                    progress: Math.min(100, Math.max(0, Number(idea.progress) || 0)),
-                };
+                return normalizeIdea(item);
             });
         } catch (err) {
             set({ importError: `Import failed: ${err instanceof Error ? err.message : 'Invalid JSON file'}` });
